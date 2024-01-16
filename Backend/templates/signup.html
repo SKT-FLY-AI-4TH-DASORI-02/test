@@ -15,7 +15,7 @@
         </ul>
       {% endif %}
     {% endwith %}
-    <form method="post" action="{{ url_for('signup') }}">
+    <form method="post" action="{{ url_for('signup_blueprint.signup') }}">
         <label for="username">Username:</label>
         <input type="text" id="username" name="username" required><br>
         
@@ -27,6 +27,6 @@
         
         <input type="submit" value="Sign Up">
     </form>
-    <a href="{{ url_for('login') }}">Login</a>
+    <a href="{{ url_for('signin_blueprint.login') }}">Login</a>
 </body>
 </html>

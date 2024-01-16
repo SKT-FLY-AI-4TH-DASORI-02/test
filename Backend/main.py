@@ -2,6 +2,7 @@ from flask import Flask, request, render_template, redirect, url_for, flash
 import hashlib
 
 app = Flask(__name__)
+# app.secret_key = 'super_secret_key'
 
 # 사용자 정보 DB (임시 딕셔너리)
 users = {
@@ -25,16 +26,16 @@ def valid_login(username, password):
 def log_the_user_in(username):
     return redirect(url_for('welcome', username=username))
 
-# 로그인 뷰
-@app.route('/login', methods=['POST', 'GET'])
-def login():
-    error = None
-    if request.method == 'POST':
-        if valid_login(request.form['username'], request.form['password']):
-            return log_the_user_in(request.form['username'])
-        else:
-            error = 'Invalid username/password'
-    return render_template('login.html', error=error)
+@app.route('/welcome/<username>')
+def welcome(username):
+    return f'Welcome, {username}!'
+
+# 블루프린트 등록
+from signIn import signin_blueprint
+from signUp import signup_blueprint
+
+app.register_blueprint(signin_blueprint)
+app.register_blueprint(signup_blueprint)
 
 # 환영 페이지 뷰
 @app.route('/welcome/<username>')
