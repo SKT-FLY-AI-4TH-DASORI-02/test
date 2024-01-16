@@ -1,31 +1,45 @@
-from flask import Flask, render_template
-from markupsafe import escape
+from flask import Flask, request, render_template, redirect, url_for, flash
+import hashlib
 
 app = Flask(__name__)
 
-@app.route("/")
-def test():
-    return render_template('index.html')
+# 사용자 정보 DB (임시 딕셔너리)
+users = {
+    'admin1': hashlib.sha256('asdfghjhgfd'.encode()).hexdigest(),
+    'admin2': hashlib.sha256('erthrgeggrf'.encode()).hexdigest(),
+    'admin3': hashlib.sha256('vhbijdjbdkm'.encode()).hexdigest(),
+    'admin4': hashlib.sha256('lp,lfpvfebb'.encode()).hexdigest(),
+    'admin5': hashlib.sha256('koinjiuhhuv'.encode()).hexdigest(),
+}
 
-# 동적 라우팅 및 이스케이프
-@app.route('/<name>') 
-def say_hello(name):
-    return f"Hello, {escape(name)}!"
+# 비밀번호 해시 함수
+def hash_password(password):
+    return hashlib.sha256(password.encode()).hexdigest()
 
-@app.route('/user/<username>')
-def show_user_profile(username):
-    # show the user profile for that user
-    return f'User {escape(username)}'
+# 로그인 검증 함수
+def valid_login(username, password):
+    hashed_password = hash_password(password)
+    return users.get(username) == hashed_password
 
-@app.route('/post/<int:post_id>')
-def show_post(post_id):
-    # show the post with the given id, the id is an integer
-    return f'Post {post_id}'
+# 사용자 로그인 함수
+def log_the_user_in(username):
+    return redirect(url_for('welcome', username=username))
 
-@app.route('/path/<path:subpath>')
-def show_subpath(subpath):
-    # show the subpath after /path/
-    return f'Subpath {escape(subpath)}'
+# 로그인 뷰
+@app.route('/login', methods=['POST', 'GET'])
+def login():
+    error = None
+    if request.method == 'POST':
+        if valid_login(request.form['username'], request.form['password']):
+            return log_the_user_in(request.form['username'])
+        else:
+            error = 'Invalid username/password'
+    return render_template('login.html', error=error)
+
+# 환영 페이지 뷰
+@app.route('/welcome/<username>')
+def welcome(username):
+    return f'Welcome, {username}!'
 
 if __name__ == '__main__':
-    app.run(debug = True)
+    app.run(debug=True)
